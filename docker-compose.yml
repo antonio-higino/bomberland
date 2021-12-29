@@ -17,6 +17,7 @@ services:
             - TICK_RATE_HZ=10
             - TRAINING_MODE_ENABLED=0
             - WORLD_SEED=1234
+            - UNITS_PER_AGENT=1
         networks:
             - coderone-tournament
 
@@ -52,9 +53,9 @@ services:
         extends:
             file: base-compose.yml
             # update next line with a service in base-compose.yml to change agent
-            service: python3-agent
+            service: cpp-agent
         environment:
-            - GAME_CONNECTION_STRING=ws://game-server:3000/?role=agent&agentId=agentB&name=python3-agent
+            - GAME_CONNECTION_STRING=ws://game-server:3000/?role=agent&agentId=agentB&name=teste-agent
             - FWD_MODEL_CONNECTION_STRING=ws://fwd-server-b:6969/?role=admin
         depends_on:
             - game-server
