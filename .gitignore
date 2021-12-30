@@ -2,3 +2,4 @@ __pycache__/
 node_modules
 typescript/dist
 logs/replay.json
+logs/replay.json
