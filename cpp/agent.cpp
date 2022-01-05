@@ -15,6 +15,7 @@ private:
   static int tick;
 
   static void on_game_tick(int tick, const json& game_state);
+  static std::string pathFinder(int tick, const json& game_state);
 public:
   static void run();
 };
@@ -60,7 +61,8 @@ void Agent::on_game_tick(int tick_nr, const json& game_state)
   {
     const json& unit = game_state["unit_state"][unit_id];
     if (unit["hp"] <= 0) continue;
-    std::string action = _actions[rand() % _actions.size()];
+    //std::string action = _actions[rand() % _actions.size()];
+    std::string action = pathFinder(tick_nr, game_state);
     std::cout << "action: " << unit_id << " -> " << action << std::endl;
 
     if (action == "up" || action == "left" || action == "right" || action == "down")
@@ -89,6 +91,10 @@ void Agent::on_game_tick(int tick_nr, const json& game_state)
       std::cerr << "Unhandled action: " << action << " for unit " << unit_id << std::endl;
     }
   }
+}
+
+std::string Agent::pathFinder(int tick, const json& game_state) {
+
 }
 
 int main()
