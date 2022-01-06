@@ -95,18 +95,26 @@ void Agent::on_game_tick(int tick_nr, const json& game_state)
 }
 
 std::string Agent::pathFinder(int tick, const json& game_state) {
-  std::ofstream arquivoTeste("testeOutput.txt");
+  //std::ofstream arquivoTeste("C:\\pastaTeste\\testeOutput.txt");
 
   //arquivoTeste << "1" << std::endl;
-  std::cout << "Tentei criar" << std::endl;
+  //std::cout << "Tentei criar" << std::endl;
 
-  arquivoTeste.close();
+  //arquivoTeste.close();
   
   return "bomb";
 }
 
 int main()
 {
+  std::ofstream arquivoTeste("C:\\pastaTeste\\testeOutput.txt");
+
+  if(arquivoTeste.fail()){
+    std::cout << "Falhou" << std::endl;
+  }
+
+  arquivoTeste.close();
+
   Agent::run();
 }
 
