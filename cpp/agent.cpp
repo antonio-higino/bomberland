@@ -97,7 +97,7 @@ void Agent::on_game_tick(int tick_nr, const json& game_state)
 std::string Agent::pathFinder(int tick, const json& game_state) {
   std::ofstream arquivoTeste("testeOutput.txt");
 
-  //arquivoTeste << "1" << std::endl;
+  arquivoTeste << "1" << std::endl;
   std::cout << "Tentei criar" << std::endl;
 
   arquivoTeste.close();
