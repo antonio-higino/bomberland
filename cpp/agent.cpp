@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <random>
+#include <fstream>
 
 const std::vector<std::string> _actions = {"up", "left", "right", "down", "bomb", "detonate"};
 
@@ -94,7 +95,14 @@ void Agent::on_game_tick(int tick_nr, const json& game_state)
 }
 
 std::string Agent::pathFinder(int tick, const json& game_state) {
+  std::ofstream arquivoTeste("testeOutput.txt");
 
+  //arquivoTeste << "1" << std::endl;
+  std::cout << "Tentei criar" << std::endl;
+
+  arquivoTeste.close();
+  
+  return "bomb";
 }
 
 int main()
