@@ -95,42 +95,53 @@ void Agent::on_game_tick(int tick_nr, const json& game_state)
 }
 
 std::string Agent::pathFinder(int tick, const json& game_state) {
-  std::string testeLeituraJson = "";
+  //std::string testeLeituraJson = "";
 
-  testeLeituraJson += "Print Mapa do jogo - Tick #" + tick;
+  /*testeLeituraJson += "Print Mapa do jogo - Tick #" + tick;
   testeLeituraJson += "\n";
-  testeLeituraJson += "\n";
+  testeLeituraJson += "\n";*/
+  std::string matrizMapa[15][15];
 
-  //montagem da string
+  for (int i = 0; i < 15; i++){
+      for (int j = 0; j < 15; j++){
+        matrizMapa[i][j] = {"#"};
+      }
+    }
+
+  //montagem da matriz
   const json& entities = game_state["entities"];
   for (const auto& entity: entities) {
-    /*int x = entity["x"];
-    if (x % 15 == 0) {
-      testeLeituraJson += "\n";
-    }*/
+    int x = entity["x"];
+    int y = entity["y"];
 
     if (entity["type"] == "a") {
-      testeLeituraJson += "A";
+      matrizMapa[x][y] = "A";
     } else if (entity["type"] == "b") {
-      testeLeituraJson += "B";
+      matrizMapa[x][y] = "B";
     } else if (entity["type"] == "x") {
-      testeLeituraJson += "X";
+      matrizMapa[x][y] = "X";
     } else if (entity["type"] == "bp") {
-      testeLeituraJson += "P";
+      matrizMapa[x][y] = "P";
     } else if (entity["type"] == "m") {
-      testeLeituraJson += "M";
+      matrizMapa[x][y] = "M";
     } else if (entity["type"] == "o") {
-      testeLeituraJson += "O";
+      matrizMapa[x][y] = "O";
     } else if (entity["type"] == "w") {
-      testeLeituraJson += "W";
-    } else {
-      testeLeituraJson += "";
+      matrizMapa[x][y] = "W";
     }
+
+    for (int i = 0; i < 15; i++){
+      for (int j = 0; j < 15; j++){
+        std::cout << matrizMapa[i][j];
+      }
+      std::cout << std::endl;
+    }
+    std::cout << std::endl;
   }
 
-  testeLeituraJson += "\n";
+  /*testeLeituraJson += "\n";
 
-  std::cout << testeLeituraJson << std::endl;
+  std::cout << testeLeituraJson << std::endl;*/
   
   return "bomb";
 }
