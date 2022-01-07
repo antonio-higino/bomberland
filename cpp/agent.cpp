@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <random>
-#include <fstream>
+//#include <fstream>
 
 const std::vector<std::string> _actions = {"up", "left", "right", "down", "bomb", "detonate"};
 
@@ -63,7 +63,7 @@ void Agent::on_game_tick(int tick_nr, const json& game_state)
     const json& unit = game_state["unit_state"][unit_id];
     if (unit["hp"] <= 0) continue;
     //std::string action = _actions[rand() % _actions.size()];
-    std::string action = pathFinder(tick_nr, game_state);
+    std::string action = pathFinder(tick, game_state);
     std::cout << "action: " << unit_id << " -> " << action << std::endl;
 
     if (action == "up" || action == "left" || action == "right" || action == "down")
@@ -95,26 +95,48 @@ void Agent::on_game_tick(int tick_nr, const json& game_state)
 }
 
 std::string Agent::pathFinder(int tick, const json& game_state) {
-  //std::ofstream arquivoTeste("C:\\pastaTeste\\testeOutput.txt");
+  std::string testeLeituraJson = "";
 
-  //arquivoTeste << "1" << std::endl;
-  //std::cout << "Tentei criar" << std::endl;
+  testeLeituraJson += "Print Mapa do jogo - Tick #" + tick;
+  testeLeituraJson += "\n";
+  testeLeituraJson += "\n";
 
-  //arquivoTeste.close();
+  //montagem da string
+  const json& entities = game_state["entities"];
+  for (const auto& entity: entities) {
+    /*int x = entity["x"];
+    if (x % 15 == 0) {
+      testeLeituraJson += "\n";
+    }*/
+
+    if (entity["type"] == "a") {
+      testeLeituraJson += "A";
+    } else if (entity["type"] == "b") {
+      testeLeituraJson += "B";
+    } else if (entity["type"] == "x") {
+      testeLeituraJson += "X";
+    } else if (entity["type"] == "bp") {
+      testeLeituraJson += "P";
+    } else if (entity["type"] == "m") {
+      testeLeituraJson += "M";
+    } else if (entity["type"] == "o") {
+      testeLeituraJson += "O";
+    } else if (entity["type"] == "w") {
+      testeLeituraJson += "W";
+    } else {
+      testeLeituraJson += "";
+    }
+  }
+
+  testeLeituraJson += "\n";
+
+  std::cout << testeLeituraJson << std::endl;
   
   return "bomb";
 }
 
 int main()
 {
-  std::ofstream arquivoTeste("C:\\pastaTeste\\testeOutput.txt");
-
-  if(arquivoTeste.fail()){
-    std::cout << "Falhou" << std::endl;
-  }
-
-  arquivoTeste.close();
-
   Agent::run();
 }
 
