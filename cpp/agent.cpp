@@ -1,4 +1,5 @@
 #include "game_state.hpp"
+#include "teste.cpp"
 
 #include <string>
 #include <stdlib.h>
@@ -100,7 +101,7 @@ std::string Agent::pathFinder(int tick, const json& game_state) {
   /*testeLeituraJson += "Print Mapa do jogo - Tick #" + tick;
   testeLeituraJson += "\n";
   testeLeituraJson += "\n";*/
-  std::string matrizMapa[15][15];
+  /*std::string matrizMapa[15][15];
 
   for (int i = 0; i < 15; i++){
       for (int j = 0; j < 15; j++){
@@ -139,11 +140,11 @@ std::string Agent::pathFinder(int tick, const json& game_state) {
     std::cout << std::endl;
   }
 
-  /*testeLeituraJson += "\n";
+  testeLeituraJson += "\n";
 
   std::cout << testeLeituraJson << std::endl;*/
   
-  return "bomb";
+  return _actions[rand() % _actions.size()];
 }
 
 int main()
