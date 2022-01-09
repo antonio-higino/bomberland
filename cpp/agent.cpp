@@ -1,11 +1,10 @@
 #include "game_state.hpp"
-#include "teste.cpp"
+#include "a_star.cpp"
 
 #include <string>
 #include <stdlib.h>
 #include <iostream>
 #include <random>
-//#include <fstream>
 
 const std::vector<std::string> _actions = {"up", "left", "right", "down", "bomb", "detonate"};
 
@@ -96,25 +95,19 @@ void Agent::on_game_tick(int tick_nr, const json& game_state)
 }
 
 std::string Agent::pathFinder(int tick, const json& game_state) {
-  //std::string testeLeituraJson = "";
 
-  /*testeLeituraJson += "Print Mapa do jogo - Tick #" + tick;
-  testeLeituraJson += "\n";
-  testeLeituraJson += "\n";*/
-  /*std::string matrizMapa[15][15];
-
+  std::string matrizMapa[15][15];
   for (int i = 0; i < 15; i++){
-      for (int j = 0; j < 15; j++){
-        matrizMapa[i][j] = {"#"};
-      }
+    for (int j = 0; j < 15; j++){
+      matrizMapa[i][j] = {"#"};
     }
+  }
 
   //montagem da matriz
   const json& entities = game_state["entities"];
   for (const auto& entity: entities) {
     int x = entity["x"];
     int y = entity["y"];
-
     if (entity["type"] == "a") {
       matrizMapa[x][y] = "A";
     } else if (entity["type"] == "b") {
@@ -130,19 +123,27 @@ std::string Agent::pathFinder(int tick, const json& game_state) {
     } else if (entity["type"] == "w") {
       matrizMapa[x][y] = "W";
     }
+  }
 
-    for (int i = 0; i < 15; i++){
-      for (int j = 0; j < 15; j++){
-        std::cout << matrizMapa[i][j];
-      }
-      std::cout << std::endl;
+  for (int i = 0; i < 15; i++){
+    for (int j = 0; j < 15; j++){
+      std::cout << matrizMapa[i][j];
     }
     std::cout << std::endl;
   }
-
-  testeLeituraJson += "\n";
-
-  std::cout << testeLeituraJson << std::endl;*/
+  std::cout << std::endl;
+  
+  /*GridWithWeights grid = make_diagram4();
+  GridLocation start{1, 4}, goal{8, 3};
+  std::unordered_map<GridLocation, GridLocation> came_from;
+  std::unordered_map<GridLocation, double> cost_so_far;
+  a_star_search(grid, start, goal, came_from, cost_so_far);
+  draw_grid(grid, nullptr, &came_from, nullptr, &start, &goal);
+  std::cout << '\n';
+  std::vector<GridLocation> path = reconstruct_path(start, goal, came_from);
+  draw_grid(grid, nullptr, nullptr, &path, &start, &goal);
+  std::cout << '\n';
+  draw_grid(grid, &cost_so_far, nullptr, nullptr, &start, &goal);*/
   
   return _actions[rand() % _actions.size()];
 }
@@ -151,4 +152,3 @@ int main()
 {
   Agent::run();
 }
-
