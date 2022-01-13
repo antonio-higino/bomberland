@@ -18,62 +18,44 @@
 #include <algorithm>
 #include <cstdlib>
 
-struct SimpleGraph {
-  std::unordered_map<char, std::vector<char> > edges;
-
-  std::vector<char> neighbors(char id) {
-    return edges[id];
-  }
-};
-
-SimpleGraph example_graph {{
-    {'A', {'B'}},
-    {'B', {'C'}},
-    {'C', {'B', 'D', 'F'}},
-    {'D', {'C', 'E'}},
-    {'E', {'F'}},
-    {'F', {}},
-  }};
-
-struct GridLocation {
+struct LocalizacaoGrade {
   int x, y;
 };
 
 namespace std {
-/* implement hash function so we can put GridLocation into an unordered_set */
-template <> struct hash<GridLocation> {
-  typedef GridLocation argument_type;
+/* implement hash function so we can put LocalizacaoGrade into an unordered_set */
+template <> struct hash<LocalizacaoGrade> {
+  typedef LocalizacaoGrade argument_type;
   typedef std::size_t result_type;
-  std::size_t operator()(const GridLocation& id) const noexcept {
+  std::size_t operator()(const LocalizacaoGrade& id) const noexcept {
     return std::hash<int>()(id.x ^ (id.y << 4));
   }
 };
 }
 
-
 struct SquareGrid {
-  static std::array<GridLocation, 4> DIRS;
+  static std::array<LocalizacaoGrade, 4> DIRS;
 
   int width, height;
-  std::unordered_set<GridLocation> walls;
+  std::unordered_set<LocalizacaoGrade> walls;
 
   SquareGrid(int width_, int height_)
      : width(width_), height(height_) {}
 
-  bool in_bounds(GridLocation id) const {
+  bool in_bounds(LocalizacaoGrade id) const {
     return 0 <= id.x && id.x < width
         && 0 <= id.y && id.y < height;
   }
 
-  bool passable(GridLocation id) const {
+  bool passable(LocalizacaoGrade id) const {
     return walls.find(id) == walls.end();
   }
 
-  std::vector<GridLocation> neighbors(GridLocation id) const {
-    std::vector<GridLocation> results;
+  std::vector<LocalizacaoGrade> neighbors(LocalizacaoGrade id) const {
+    std::vector<LocalizacaoGrade> results;
 
-    for (GridLocation dir : DIRS) {
-      GridLocation next{id.x + dir.x, id.y + dir.y};
+    for (LocalizacaoGrade dir : DIRS) {
+      LocalizacaoGrade next{id.x + dir.x, id.y + dir.y};
       if (in_bounds(next) && passable(next)) {
         results.push_back(next);
       }
@@ -88,27 +70,27 @@ struct SquareGrid {
   }
 };
 
-std::array<GridLocation, 4> SquareGrid::DIRS = {
+std::array<LocalizacaoGrade, 4> SquareGrid::DIRS = {
   /* East, West, North, South */
-  GridLocation{1, 0}, GridLocation{-1, 0},
-  GridLocation{0, -1}, GridLocation{0, 1}
+  LocalizacaoGrade{1, 0}, LocalizacaoGrade{-1, 0},
+  LocalizacaoGrade{0, -1}, LocalizacaoGrade{0, 1}
 };
 
-// Helpers for GridLocation
+// Helpers for LocalizacaoGrade
 
-bool operator == (GridLocation a, GridLocation b) {
+bool operator == (LocalizacaoGrade a, LocalizacaoGrade b) {
   return a.x == b.x && a.y == b.y;
 }
 
-bool operator != (GridLocation a, GridLocation b) {
+bool operator != (LocalizacaoGrade a, LocalizacaoGrade b) {
   return !(a == b);
 }
 
-bool operator < (GridLocation a, GridLocation b) {
+bool operator < (LocalizacaoGrade a, LocalizacaoGrade b) {
   return std::tie(a.x, a.y) < std::tie(b.x, b.y);
 }
 
-std::basic_iostream<char>::basic_ostream& operator<<(std::basic_iostream<char>::basic_ostream& out, const GridLocation& loc) {
+std::basic_iostream<char>::basic_ostream& operator<<(std::basic_iostream<char>::basic_ostream& out, const LocalizacaoGrade& loc) {
   out << '(' << loc.x << ',' << loc.y << ')';
   return out;
 }
@@ -119,16 +101,16 @@ std::basic_iostream<char>::basic_ostream& operator<<(std::basic_iostream<char>::
 // if you want to draw the path.
 template<class Graph>
 void draw_grid(const Graph& graph,
-               std::unordered_map<GridLocation, double>* distances=nullptr,
-               std::unordered_map<GridLocation, GridLocation>* point_to=nullptr,
-               std::vector<GridLocation>* path=nullptr,
-               GridLocation* start=nullptr,
-               GridLocation* goal=nullptr) {
+               std::unordered_map<LocalizacaoGrade, double>* distances=nullptr,
+               std::unordered_map<LocalizacaoGrade, LocalizacaoGrade>* point_to=nullptr,
+               std::vector<LocalizacaoGrade>* path=nullptr,
+               LocalizacaoGrade* start=nullptr,
+               LocalizacaoGrade* goal=nullptr) {
   const int field_width = 3;
   std::cout << std::string(field_width * graph.width, '_') << '\n';
   for (int y = 0; y != graph.height; ++y) {
     for (int x = 0; x != graph.width; ++x) {
-      GridLocation id {x, y};
+      LocalizacaoGrade id {x, y};
       if (graph.walls.find(id) != graph.walls.end()) {
         std::cout << std::string(field_width, '#');
       } else if (start && id == *start) {
@@ -138,7 +120,7 @@ void draw_grid(const Graph& graph,
       } else if (path != nullptr && find(path->begin(), path->end(), id) != path->end()) {
         std::cout << " @ ";
       } else if (point_to != nullptr && point_to->count(id)) {
-        GridLocation next = (*point_to)[id];
+        LocalizacaoGrade next = (*point_to)[id];
         if (next.x == x + 1) { std::cout << " > "; }
         else if (next.x == x - 1) { std::cout << " < "; }
         else if (next.y == y + 1) { std::cout << " v "; }
@@ -158,7 +140,7 @@ void draw_grid(const Graph& graph,
 void add_rect(SquareGrid& grid, int x1, int y1, int x2, int y2) {
   for (int x = x1; x < x2; ++x) {
     for (int y = y1; y < y2; ++y) {
-      grid.walls.insert(GridLocation{x, y});
+      grid.walls.insert(LocalizacaoGrade{x, y});
     }
   }
 }
@@ -173,9 +155,9 @@ void add_rect(SquareGrid& grid, int x1, int y1, int x2, int y2) {
 }*/
 
 struct GridWithWeights: SquareGrid {
-  std::unordered_set<GridLocation> forests;
+  std::unordered_set<LocalizacaoGrade> forests;
   GridWithWeights(int w, int h): SquareGrid(w, h) {}
-  double cost(GridLocation from_node, GridLocation to_node) const {
+  double cost(LocalizacaoGrade from_node, LocalizacaoGrade to_node) const {
     return forests.find(to_node) != forests.end()? 5 : 1;
   }
 };
@@ -184,8 +166,8 @@ struct GridWithWeights: SquareGrid {
 GridWithWeights make_diagram4() {
   GridWithWeights grid(10, 10);
   add_rect(grid, 1, 7, 4, 9);
-  typedef GridLocation L;
-  grid.forests = std::unordered_set<GridLocation> {
+  typedef LocalizacaoGrade L;
+  grid.forests = std::unordered_set<LocalizacaoGrade> {
     L{3, 4}, L{3, 5}, L{4, 1}, L{4, 2},
     L{4, 3}, L{4, 4}, L{4, 5}, L{4, 6},
     L{4, 7}, L{4, 8}, L{5, 1}, L{5, 2},
@@ -234,7 +216,7 @@ std::vector<Location> reconstruct_path(
   return path;
 }
 
-inline double heuristic(GridLocation a, GridLocation b) {
+inline double heuristic(LocalizacaoGrade a, LocalizacaoGrade b) {
   return std::abs(a.x - b.x) + std::abs(a.y - b.y);
 }
 
