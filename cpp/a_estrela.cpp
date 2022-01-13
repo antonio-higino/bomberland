@@ -137,7 +137,7 @@ void draw_grid(const Graph& graph,
   std::cout << std::string(field_width * graph.width, '~') << '\n';
 }
 
-void add_rect(SquareGrid& grid, int x1, int y1, int x2, int y2) {
+void addRetangulo(SquareGrid& grid, int x1, int y1, int x2, int y2) {
   for (int x = x1; x < x2; ++x) {
     for (int y = y1; y < y2; ++y) {
       grid.walls.insert(LocalizacaoGrade{x, y});
@@ -145,29 +145,20 @@ void add_rect(SquareGrid& grid, int x1, int y1, int x2, int y2) {
   }
 }
 
-/*SquareGrid make_diagram1() {
-  SquareGrid grid(30, 15);
-  add_rect(grid, 3, 3, 5, 12);
-  add_rect(grid, 13, 4, 15, 15);
-  add_rect(grid, 21, 0, 23, 7);
-  add_rect(grid, 23, 5, 26, 7);
-  return grid;
-}*/
-
-struct GridWithWeights: SquareGrid {
+struct GradesComPeso: SquareGrid {
   std::unordered_set<LocalizacaoGrade> forests;
-  GridWithWeights(int w, int h): SquareGrid(w, h) {}
+  GradesComPeso(int w, int h): SquareGrid(w, h) {}
   double cost(LocalizacaoGrade from_node, LocalizacaoGrade to_node) const {
     return forests.find(to_node) != forests.end()? 5 : 1;
   }
 };
 
 //Modificar para criar um grid baseada no bomberland
-GridWithWeights make_diagram4() {
-  GridWithWeights grid(10, 10);
-  add_rect(grid, 1, 7, 4, 9);
+GradesComPeso GerarDiagrama() {
+  GradesComPeso grade(10, 10);
+  addRetangulo(grade, 1, 7, 4, 9);
   typedef LocalizacaoGrade L;
-  grid.forests = std::unordered_set<LocalizacaoGrade> {
+  grade.forests = std::unordered_set<LocalizacaoGrade> {
     L{3, 4}, L{3, 5}, L{4, 1}, L{4, 2},
     L{4, 3}, L{4, 4}, L{4, 5}, L{4, 6},
     L{4, 7}, L{4, 8}, L{5, 1}, L{5, 2},
@@ -176,11 +167,11 @@ GridWithWeights make_diagram4() {
     L{6, 4}, L{6, 5}, L{6, 6}, L{6, 7},
     L{7, 3}, L{7, 4}, L{7, 5}
   };
-  return grid;
+  return grade;
 }
 
 template<typename T, typename priority_t>
-struct PriorityQueue {
+struct FilaDePrioridade {
   typedef std::pair<priority_t, T> PQElement;
   std::priority_queue<PQElement, std::vector<PQElement>,
                  std::greater<PQElement>> elements;
@@ -228,7 +219,7 @@ void a_star_search
    std::unordered_map<Location, Location>& came_from,
    std::unordered_map<Location, double>& cost_so_far)
 {
-  PriorityQueue<Location, double> frontier;
+  FilaDePrioridade<Location, double> frontier;
   frontier.put(start, 0);
 
   came_from[start] = start;
