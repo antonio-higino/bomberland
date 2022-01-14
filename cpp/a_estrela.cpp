@@ -1,11 +1,3 @@
-/*
- Sample code from https://www.redblobgames.com/pathfinding/a-star/
- Copyright 2014 Red Blob Games <redblobgames@gmail.com>
- 
- Feel free to use this code in your own projects, including commercial projects
- License: Apache v2.0 <http://www.apache.org/licenses/LICENSE-2.0.html>
-*/
-
 #include <iostream>
 #include <iomanip>
 #include <unordered_map>
@@ -23,7 +15,6 @@ struct LocalizacaoGrade {
 };
 
 namespace std {
-/* implement hash function so we can put LocalizacaoGrade into an unordered_set */
 template <> struct hash<LocalizacaoGrade> {
   typedef LocalizacaoGrade argument_type;
   typedef std::size_t result_type;
@@ -33,36 +24,34 @@ template <> struct hash<LocalizacaoGrade> {
 };
 }
 
-struct SquareGrid {
-  static std::array<LocalizacaoGrade, 4> DIRS;
+struct GradeQuadrada {
+  static std::array<LocalizacaoGrade, 4> Direcoes;
 
   int largura, altura;
   std::unordered_set<LocalizacaoGrade> paredes;
 
-  SquareGrid(int largura_, int altura_)
+  GradeQuadrada(int largura_, int altura_)
      : largura(largura_), altura(altura_) {}
 
-  bool in_bounds(LocalizacaoGrade id) const {
-    return 0 <= id.x && id.x < largura
-        && 0 <= id.y && id.y < altura;
+  bool dentroDoMapa(LocalizacaoGrade id) const {
+    return 0 <= id.x && id.x < largura && 0 <= id.y && id.y < altura;
   }
 
-  bool passable(LocalizacaoGrade id) const {
+  bool navegavel(LocalizacaoGrade id) const {
     return paredes.find(id) == paredes.end();
   }
 
-  std::vector<LocalizacaoGrade> neighbors(LocalizacaoGrade id) const {
+  std::vector<LocalizacaoGrade> vizinhos(LocalizacaoGrade id) const {
     std::vector<LocalizacaoGrade> resultadoBusca;
 
-    for (LocalizacaoGrade dir : DIRS) {
+    for (LocalizacaoGrade dir : Direcoes) {
       LocalizacaoGrade next{id.x + dir.x, id.y + dir.y};
-      if (in_bounds(next) && passable(next)) {
+      if (dentroDoMapa(next) && navegavel(next)) {
         resultadoBusca.push_back(next);
       }
     }
 
     if ((id.x + id.y) % 2 == 0) {
-      // see "Ugly paths" section for an explanation:
       std::reverse(resultadoBusca.begin(), resultadoBusca.end());
     }
 
@@ -70,7 +59,7 @@ struct SquareGrid {
   }
 };
 
-std::array<LocalizacaoGrade, 4> SquareGrid::DIRS = {
+std::array<LocalizacaoGrade, 4> GradeQuadrada::Direcoes = {
   /* East, West, North, South */
   LocalizacaoGrade{1, 0}, LocalizacaoGrade{-1, 0},
   LocalizacaoGrade{0, -1}, LocalizacaoGrade{0, 1}
@@ -97,19 +86,19 @@ std::basic_iostream<char>::basic_ostream& operator<<(std::basic_iostream<char>::
 
 // This outputs a grid. Pass in a distances map if you want to print
 // the distances, or pass in a point_to map if you want to print
-// arrows that point to the parent location, or pass in a path vector
-// if you want to draw the path.
+// arrows that point to the parent Localizacao, or pass in a caminho vector
+// if you want to draw the caminho.
 template<class Grafo>
-void desenharMalha(const Grafo& graph,
+void desenharGrade(const Grafo& graph,
                std::unordered_map<LocalizacaoGrade, double>* distancia = nullptr,
                std::unordered_map<LocalizacaoGrade, LocalizacaoGrade>* apontarPara = nullptr,
                std::vector<LocalizacaoGrade>* caminho = nullptr,
                LocalizacaoGrade* inicio = nullptr,
                LocalizacaoGrade* destino = nullptr) {
   const int larguraMapa = 3;
-  std::cout << std::string(larguraMapa * graph.width, '_') << '\n';
-  for (int y = 0; y != graph.height; ++y) {
-    for (int x = 0; x != graph.width; ++x) {
+  std::cout << std::string(larguraMapa * graph.largura, '_') << '\n';
+  for (int y = 0; y != graph.altura; ++y) {
+    for (int x = 0; x != graph.largura; ++x) {
       LocalizacaoGrade id {x, y};
       if (graph.paredes.find(id) != graph.paredes.end()) {
         std::cout << std::string(larguraMapa, '#');
@@ -134,10 +123,10 @@ void desenharMalha(const Grafo& graph,
     }
     std::cout << '\n';
   }
-  std::cout << std::string(larguraMapa * graph.width, '~') << '\n';
+  std::cout << std::string(larguraMapa * graph.largura, '~') << '\n';
 }
 
-void addRetangulo(SquareGrid& grade, int x1, int y1, int x2, int y2) {
+void addRetangulo(GradeQuadrada& grade, int x1, int y1, int x2, int y2) {
   for (int x = x1; x < x2; ++x) {
     for (int y = y1; y < y2; ++y) {
       grade.paredes.insert(LocalizacaoGrade{x, y});
@@ -145,11 +134,11 @@ void addRetangulo(SquareGrid& grade, int x1, int y1, int x2, int y2) {
   }
 }
 
-struct GradesComPeso: SquareGrid {
-  std::unordered_set<LocalizacaoGrade> forests;
-  GradesComPeso(int w, int h): SquareGrid(w, h) {}
-  double cost(LocalizacaoGrade from_node, LocalizacaoGrade to_node) const {
-    return forests.find(to_node) != forests.end()? 5 : 1;
+struct GradesComPeso: GradeQuadrada {
+  std::unordered_set<LocalizacaoGrade> pontosComPeso;
+  GradesComPeso(int w, int h): GradeQuadrada(w, h) {}
+  double custo(LocalizacaoGrade from_node, LocalizacaoGrade to_node) const {
+    return pontosComPeso.find(to_node) != pontosComPeso.end()? 5 : 1;
   }
 };
 
@@ -158,7 +147,7 @@ GradesComPeso GerarDiagrama() {
   GradesComPeso grade(10, 10);
   addRetangulo(grade, 1, 7, 4, 9);
   typedef LocalizacaoGrade L;
-  grade.forests = std::unordered_set<LocalizacaoGrade> {
+  grade.pontosComPeso = std::unordered_set<LocalizacaoGrade> {
     L{3, 4}, L{3, 5}, L{4, 1}, L{4, 2},
     L{4, 3}, L{4, 4}, L{4, 5}, L{4, 6},
     L{4, 7}, L{4, 8}, L{5, 1}, L{5, 2},
@@ -174,73 +163,67 @@ template<typename T, typename priority_t>
 struct FilaDePrioridade {
   typedef std::pair<priority_t, T> PQElement;
   std::priority_queue<PQElement, std::vector<PQElement>,
-                 std::greater<PQElement>> elements;
+                 std::greater<PQElement>> elementos;
 
-  inline bool vazio() const {
-     return elements.vazio();
+  inline bool empty() const {
+     return elementos.empty();
   }
 
-  inline void colocar(T item, priority_t priority) {
-    elements.emplace(priority, item);
+  inline void put(T item, priority_t priority) {
+    elementos.emplace(priority, item);
   }
 
   T get() {
-    T best_item = elements.top().second;
-    elements.pop();
+    T best_item = elementos.top().second;
+    elementos.pop();
     return best_item;
   }
 };
 
-template<typename Location>
-std::vector<Location> reconstruct_path(
-   Location start, Location goal,
-   std::unordered_map<Location, Location> lugarOrigem
-) {
-  std::vector<Location> path;
-  Location current = goal;
-  while (current != start) {
-    path.push_back(current);
+template<typename Localizacao>
+std::vector<Localizacao> reconstruirCaminho(Localizacao inicio, Localizacao destino, std::unordered_map<Localizacao, Localizacao> lugarOrigem) {
+  std::vector<Localizacao> caminho;
+  Localizacao current = destino;
+  while (current != inicio) {
+    caminho.push_back(current);
     current = lugarOrigem[current];
   }
-  path.push_back(start); // optional
-  std::reverse(path.begin(), path.end());
-  return path;
+  caminho.push_back(inicio); // optional
+  std::reverse(caminho.begin(), caminho.end());
+  return caminho;
 }
 
 inline double heuristica(LocalizacaoGrade a, LocalizacaoGrade b) {
   return std::abs(a.x - b.x) + std::abs(a.y - b.y);
 }
 
-template<typename Location, typename Graph>
-void buscaAestrela
-  (Graph graph,
-   Location start,
-   Location goal,
-   std::unordered_map<Location, Location>& lugarOrigem,
-   std::unordered_map<Location, double>& custoAtual)
-{
-  FilaDePrioridade<Location, double> frontier;
-  frontier.colocar(start, 0);
+template<typename Localizacao, typename Grafo>
+void buscaAestrela(Grafo graph, Localizacao inicio, Localizacao destino, std::unordered_map<Localizacao, Localizacao>& lugarOrigem, std::unordered_map<Localizacao, double>& custoAtual) {
+  FilaDePrioridade<Localizacao, double> fronteira;
+  fronteira.put(inicio, 0);
 
-  lugarOrigem[start] = start;
-  custoAtual[start] = 0;
+  lugarOrigem[inicio] = inicio;
+  custoAtual[inicio] = 0;
   
-  while (!frontier.vazio()) {
-    Location current = frontier.get();
+  while (!fronteira.empty()) {
+    Localizacao current = fronteira.get();
 
-    if (current == goal) {
+    if (current == destino) {
       break;
     }
 
-    for (Location next : graph.neighbors(current)) {
-      double new_cost = custoAtual[current] + graph.cost(current, next);
-      if (custoAtual.find(next) == custoAtual.end()
-          || new_cost < custoAtual[next]) {
-        custoAtual[next] = new_cost;
-        double priority = new_cost + heuristica(next, goal);
-        frontier.colocar(next, priority);
+    for (Localizacao next : graph.vizinhos(current)) {
+      double novoCusto = custoAtual[current] + graph.custo(current, next);
+      if (custoAtual.find(next) == custoAtual.end() || novoCusto < custoAtual[next]) {
+        custoAtual[next] = novoCusto;
+        double priority = novoCusto + heuristica(next, destino);
+        fronteira.put(next, priority);
         lugarOrigem[next] = current;
       }
     }
   }
 }
+
+/*int main(){
+  return 0;
+}*/

@@ -1,5 +1,5 @@
 #include "game_state.hpp"
-#include "a_star.cpp"
+#include "a_estrela.cpp"
 
 #include <string>
 #include <stdlib.h>
@@ -133,17 +133,17 @@ std::string Agent::pathFinder(int tick, const json& game_state) {
   }
   std::cout << std::endl;
   
-  /*GridWithWeights grid = make_diagram4();
-  GridLocation start{1, 4}, goal{8, 3};
-  std::unordered_map<GridLocation, GridLocation> came_from;
-  std::unordered_map<GridLocation, double> cost_so_far;
-  a_star_search(grid, start, goal, came_from, cost_so_far);
-  draw_grid(grid, nullptr, &came_from, nullptr, &start, &goal);
+  /*GradesComPeso grid = GerarDiagrama();
+  LocalizacaoGrade start{2, 5}, goal{6, 9};
+  std::unordered_map<LocalizacaoGrade, LocalizacaoGrade> came_from;
+  std::unordered_map<LocalizacaoGrade, double> cost_so_far;
+  buscaAestrela(grid, start, goal, came_from, cost_so_far);
+  desenharGrade(grid, nullptr, &came_from, nullptr, &start, &goal);
   std::cout << '\n';
-  std::vector<GridLocation> path = reconstruct_path(start, goal, came_from);
-  draw_grid(grid, nullptr, nullptr, &path, &start, &goal);
+  std::vector<LocalizacaoGrade> path = reconstruirCaminho(start, goal, came_from);
+  desenharGrade(grid, nullptr, nullptr, &path, &start, &goal);
   std::cout << '\n';
-  draw_grid(grid, &cost_so_far, nullptr, nullptr, &start, &goal);*/
+  desenharGrade(grid, &cost_so_far, nullptr, nullptr, &start, &goal);*/
   
   return _actions[rand() % _actions.size()];
 }

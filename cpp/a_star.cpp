@@ -271,3 +271,7 @@ void a_star_search
     }
   }
 }
+
+/*int main(){
+  return 0;
+}*/
