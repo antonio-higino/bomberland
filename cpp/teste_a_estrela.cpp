@@ -1,4 +1,4 @@
-#include "a_estrela.cpp"
+/*#include "a_estrela.cpp"
 
 int main() {
   GradesComPeso grid = GerarDiagrama();
@@ -12,4 +12,4 @@ int main() {
   desenharGrade(grid, nullptr, nullptr, &path, &start, &goal);
   std::cout << '\n';
   desenharGrade(grid, &cost_so_far, nullptr, nullptr, &start, &goal);
-}
+}*/

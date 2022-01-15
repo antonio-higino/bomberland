@@ -96,56 +96,80 @@ void Agent::on_game_tick(int tick_nr, const json& game_state)
 
 std::string Agent::pathFinder(int tick, const json& game_state) {
 
-  std::string matrizMapa[15][15];
+  /*std::string matrizMapa[15][15];
   for (int i = 0; i < 15; i++){
     for (int j = 0; j < 15; j++){
       matrizMapa[i][j] = {"#"};
     }
-  }
+  }*/
 
-  //montagem da matriz
+  GradesComPeso grade(15, 15);
+  //grade.pontosComPeso = std::unordered_set<LocalizacaoGrade> {};
+
   const json& entities = game_state["entities"];
   for (const auto& entity: entities) {
     int x = entity["x"];
     int y = entity["y"];
     if (entity["type"] == "a") {
-      matrizMapa[x][y] = "A";
+      addEntidade(grade, x, y);
     } else if (entity["type"] == "b") {
-      matrizMapa[x][y] = "B";
+      addEntidade(grade, x, y);
     } else if (entity["type"] == "x") {
-      matrizMapa[x][y] = "X";
+      addEntidade(grade, x, y);
     } else if (entity["type"] == "bp") {
-      matrizMapa[x][y] = "P";
+      addEntidade(grade, x, y);
     } else if (entity["type"] == "m") {
-      matrizMapa[x][y] = "M";
+      addEntidade(grade, x, y);
     } else if (entity["type"] == "o") {
-      matrizMapa[x][y] = "O";
+      addEntidade(grade, x, y);
     } else if (entity["type"] == "w") {
-      matrizMapa[x][y] = "W";
+      addEntidade(grade, x, y);
     }
   }
 
-  for (int i = 0; i < 15; i++){
+  /*for (int i = 0; i < 15; i++){
     for (int j = 0; j < 15; j++){
       std::cout << matrizMapa[i][j];
     }
     std::cout << std::endl;
   }
-  std::cout << std::endl;
+  std::cout << std::endl;*/
+
+  const json& unit_ia = game_state["unit_state"]["d"];
+  const json& unit_inimigo = game_state["unit_state"]["c"];
+
+  std::vector<int> coordenadas_ia = unit_ia["coordinates"];
+  std::vector<int> coordenadas_inimigo = unit_inimigo["coordinates"];
+
+  LocalizacaoGrade inicio{coordenadas_ia[0], coordenadas_ia[1]}, destino{coordenadas_inimigo[0], coordenadas_inimigo[1]};
+  std::unordered_map<LocalizacaoGrade, LocalizacaoGrade> veioDe;
+  std::unordered_map<LocalizacaoGrade, double> custoAteAgora;
   
-  /*GradesComPeso grid = GerarDiagrama();
-  LocalizacaoGrade start{2, 5}, goal{6, 9};
-  std::unordered_map<LocalizacaoGrade, LocalizacaoGrade> came_from;
-  std::unordered_map<LocalizacaoGrade, double> cost_so_far;
-  buscaAestrela(grid, start, goal, came_from, cost_so_far);
-  desenharGrade(grid, nullptr, &came_from, nullptr, &start, &goal);
+  buscaAestrela(grade, inicio, destino, veioDe, custoAteAgora);
+  desenharGrade(grade, nullptr, &veioDe, nullptr, &inicio, &destino);
   std::cout << '\n';
-  std::vector<LocalizacaoGrade> path = reconstruirCaminho(start, goal, came_from);
-  desenharGrade(grid, nullptr, nullptr, &path, &start, &goal);
-  std::cout << '\n';
-  desenharGrade(grid, &cost_so_far, nullptr, nullptr, &start, &goal);*/
   
-  return _actions[rand() % _actions.size()];
+  std::vector<LocalizacaoGrade> caminho = reconstruirCaminho(inicio, destino, veioDe);
+  std::cout << "Proxima localizacao: ";
+  std::cout << caminho[1] << std::endl;
+  
+  desenharGrade(grade, nullptr, nullptr, &caminho, &inicio, &destino);
+  std::cout << '\n';
+  desenharGrade(grade, &custoAteAgora, nullptr, nullptr, &inicio, &destino);
+
+  if(caminho[1].x > inicio.x) {
+    return "right";
+  } else if(caminho[1].x < inicio.x) {
+    return "left";
+  } else if(caminho[1].y < inicio.y) {
+    return "down";
+  } else if(caminho[1].y > inicio.y) {
+    return "up";
+  } else {
+    return "bomb";
+  }
+
+  //return _actions[rand() % _actions.size()];
 }
 
 int main()

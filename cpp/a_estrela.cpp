@@ -28,6 +28,7 @@ struct GradeQuadrada {
   static std::array<LocalizacaoGrade, 4> Direcoes;
 
   int largura, altura;
+
   std::unordered_set<LocalizacaoGrade> paredes;
 
   GradeQuadrada(int largura_, int altura_)
@@ -126,12 +127,8 @@ void desenharGrade(const Grafo& graph,
   std::cout << std::string(larguraMapa * graph.largura, '~') << '\n';
 }
 
-void addRetangulo(GradeQuadrada& grade, int x1, int y1, int x2, int y2) {
-  for (int x = x1; x < x2; ++x) {
-    for (int y = y1; y < y2; ++y) {
-      grade.paredes.insert(LocalizacaoGrade{x, y});
-    }
-  }
+void addEntidade(GradeQuadrada& grade, int x, int y) {
+  grade.paredes.insert(LocalizacaoGrade{x, y});
 }
 
 struct GradesComPeso: GradeQuadrada {
@@ -142,22 +139,13 @@ struct GradesComPeso: GradeQuadrada {
   }
 };
 
-//Modificar para criar um grid baseada no bomberland
-GradesComPeso GerarDiagrama() {
-  GradesComPeso grade(10, 10);
-  addRetangulo(grade, 1, 7, 4, 9);
+/*GradesComPeso GerarDiagrama() {
+  GradesComPeso grade(15, 15);
+  addEntidade(grade, 1, 7);
   typedef LocalizacaoGrade L;
-  grade.pontosComPeso = std::unordered_set<LocalizacaoGrade> {
-    L{3, 4}, L{3, 5}, L{4, 1}, L{4, 2},
-    L{4, 3}, L{4, 4}, L{4, 5}, L{4, 6},
-    L{4, 7}, L{4, 8}, L{5, 1}, L{5, 2},
-    L{5, 3}, L{5, 4}, L{5, 5}, L{5, 6},
-    L{5, 7}, L{5, 8}, L{6, 2}, L{6, 3},
-    L{6, 4}, L{6, 5}, L{6, 6}, L{6, 7},
-    L{7, 3}, L{7, 4}, L{7, 5}
-  };
+  grade.pontosComPeso = std::unordered_set<LocalizacaoGrade> {};
   return grade;
-}
+}*/
 
 template<typename T, typename priority_t>
 struct FilaDePrioridade {
@@ -181,12 +169,12 @@ struct FilaDePrioridade {
 };
 
 template<typename Localizacao>
-std::vector<Localizacao> reconstruirCaminho(Localizacao inicio, Localizacao destino, std::unordered_map<Localizacao, Localizacao> lugarOrigem) {
+std::vector<Localizacao> reconstruirCaminho(Localizacao inicio, Localizacao destino, std::unordered_map<Localizacao, Localizacao> veioDe) {
   std::vector<Localizacao> caminho;
   Localizacao current = destino;
   while (current != inicio) {
     caminho.push_back(current);
-    current = lugarOrigem[current];
+    current = veioDe[current];
   }
   caminho.push_back(inicio); // optional
   std::reverse(caminho.begin(), caminho.end());
@@ -198,12 +186,18 @@ inline double heuristica(LocalizacaoGrade a, LocalizacaoGrade b) {
 }
 
 template<typename Localizacao, typename Grafo>
-void buscaAestrela(Grafo graph, Localizacao inicio, Localizacao destino, std::unordered_map<Localizacao, Localizacao>& lugarOrigem, std::unordered_map<Localizacao, double>& custoAtual) {
+void buscaAestrela
+  (Grafo graph, 
+  Localizacao inicio, 
+  Localizacao destino, 
+  std::unordered_map<Localizacao, Localizacao>& veioDe, 
+  std::unordered_map<Localizacao, double>& custoAteAgora) {
+  
   FilaDePrioridade<Localizacao, double> fronteira;
   fronteira.put(inicio, 0);
 
-  lugarOrigem[inicio] = inicio;
-  custoAtual[inicio] = 0;
+  veioDe[inicio] = inicio;
+  custoAteAgora[inicio] = 0;
   
   while (!fronteira.empty()) {
     Localizacao current = fronteira.get();
@@ -213,12 +207,12 @@ void buscaAestrela(Grafo graph, Localizacao inicio, Localizacao destino, std::un
     }
 
     for (Localizacao next : graph.vizinhos(current)) {
-      double novoCusto = custoAtual[current] + graph.custo(current, next);
-      if (custoAtual.find(next) == custoAtual.end() || novoCusto < custoAtual[next]) {
-        custoAtual[next] = novoCusto;
+      double novoCusto = custoAteAgora[current] + graph.custo(current, next);
+      if (custoAteAgora.find(next) == custoAteAgora.end() || novoCusto < custoAteAgora[next]) {
+        custoAteAgora[next] = novoCusto;
         double priority = novoCusto + heuristica(next, destino);
         fronteira.put(next, priority);
-        lugarOrigem[next] = current;
+        veioDe[next] = current;
       }
     }
   }

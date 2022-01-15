@@ -1,4 +1,4 @@
-#include "a_star.cpp"
+/*#include "a_star.cpp"
 
 int main() {
   GridWithWeights grid = make_diagram4();
@@ -9,7 +9,8 @@ int main() {
   draw_grid(grid, nullptr, &came_from, nullptr, &start, &goal);
   std::cout << '\n';
   std::vector<GridLocation> path = reconstruct_path(start, goal, came_from);
+  std::cout << path[1] << std::endl;
   draw_grid(grid, nullptr, nullptr, &path, &start, &goal);
   std::cout << '\n';
   draw_grid(grid, &cost_so_far, nullptr, nullptr, &start, &goal);
-}
+}*/
