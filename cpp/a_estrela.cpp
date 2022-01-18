@@ -63,13 +63,12 @@ struct GradeQuadrada {
 };
 
 array<LocalizacaoGrade, 4> GradeQuadrada::Direcoes = {
-  /* East, West, North, South */
+  /* Leste, Oeste, Norte, Sul */
   LocalizacaoGrade{1, 0}, LocalizacaoGrade{-1, 0},
   LocalizacaoGrade{0, -1}, LocalizacaoGrade{0, 1}
 };
 
-// Helpers for LocalizacaoGrade
-
+// Funções para ajudar LocalizacaoGrade
 bool operator == (LocalizacaoGrade a, LocalizacaoGrade b) {
   return a.x == b.x && a.y == b.y;
 }
@@ -211,7 +210,3 @@ void buscaAestrela
     }
   }
 }
-
-/*int main(){
-  return 0;
-}*/
