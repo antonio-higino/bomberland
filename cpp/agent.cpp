@@ -96,13 +96,6 @@ void Agent::on_game_tick(int tick_nr, const json& game_state)
 
 std::string Agent::pathFinder(int tick, const json& game_state) {
 
-  /*std::string matrizMapa[15][15];
-  for (int i = 0; i < 15; i++){
-    for (int j = 0; j < 15; j++){
-      matrizMapa[i][j] = {"#"};
-    }
-  }*/
-
   GradesComPeso grade(15, 15);
   //grade.pontosComPeso = std::unordered_set<LocalizacaoGrade> {};
 
@@ -127,14 +120,6 @@ std::string Agent::pathFinder(int tick, const json& game_state) {
     }
   }
 
-  /*for (int i = 0; i < 15; i++){
-    for (int j = 0; j < 15; j++){
-      std::cout << matrizMapa[i][j];
-    }
-    std::cout << std::endl;
-  }
-  std::cout << std::endl;*/
-
   const json& unit_ia = game_state["unit_state"]["d"];
   const json& unit_inimigo = game_state["unit_state"]["c"];
 
@@ -146,16 +131,16 @@ std::string Agent::pathFinder(int tick, const json& game_state) {
   std::unordered_map<LocalizacaoGrade, double> custoAteAgora;
   
   buscaAestrela(grade, inicio, destino, veioDe, custoAteAgora);
-  desenharGrade(grade, nullptr, &veioDe, nullptr, &inicio, &destino);
-  std::cout << '\n';
+  //desenharGrade(grade, nullptr, &veioDe, nullptr, &inicio, &destino);
+  //std::cout << '\n';
   
   std::vector<LocalizacaoGrade> caminho = reconstruirCaminho(inicio, destino, veioDe);
   std::cout << "Proxima localizacao: ";
   std::cout << caminho[1] << std::endl;
   
-  desenharGrade(grade, nullptr, nullptr, &caminho, &inicio, &destino);
-  std::cout << '\n';
-  desenharGrade(grade, &custoAteAgora, nullptr, nullptr, &inicio, &destino);
+  //desenharGrade(grade, nullptr, nullptr, &caminho, &inicio, &destino);
+  //std::cout << '\n';
+  //desenharGrade(grade, &custoAteAgora, nullptr, nullptr, &inicio, &destino);
 
   if(caminho[1].x > inicio.x) {
     return "right";
@@ -166,7 +151,7 @@ std::string Agent::pathFinder(int tick, const json& game_state) {
   } else if(caminho[1].y > inicio.y) {
     return "up";
   } else {
-    return "bomb";
+    return "right";
   }
 
   //return _actions[rand() % _actions.size()];
