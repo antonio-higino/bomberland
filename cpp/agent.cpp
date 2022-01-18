@@ -135,8 +135,7 @@ std::string Agent::pathFinder(int tick, const json& game_state) {
   //std::cout << '\n';
   
   std::vector<LocalizacaoGrade> caminho = reconstruirCaminho(inicio, destino, veioDe);
-  std::cout << "Proxima localizacao: ";
-  std::cout << caminho[1] << std::endl;
+  std::cout << "Proxima localizacao: " << caminho[1] << std::endl;
   
   //desenharGrade(grade, nullptr, nullptr, &caminho, &inicio, &destino);
   //std::cout << '\n';
@@ -153,8 +152,6 @@ std::string Agent::pathFinder(int tick, const json& game_state) {
   } else {
     return "right";
   }
-
-  //return _actions[rand() % _actions.size()];
 }
 
 int main()
