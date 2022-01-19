@@ -4,7 +4,6 @@
 #include <string>
 #include <stdlib.h>
 #include <iostream>
-#include <random>
 
 const std::vector<std::string> _actions = {"up", "left", "right", "down", "bomb", "detonate"};
 
@@ -16,7 +15,8 @@ private:
   static int tick;
 
   static void on_game_tick(int tick, const json& game_state);
-  static std::string pathFinder(int tick, const json& game_state);
+  static std::string escolherOrdem(int tick, const json& game_state);
+  static std::string pathFinder(std::vector<int> coordenadas_ia, std::vector<int> coordenadas_inimigo, const json& game_state);
 public:
   static void run();
 };
@@ -55,15 +55,12 @@ void Agent::on_game_tick(int tick_nr, const json& game_state)
     my_units = game_state["agents"][my_agent_id]["unit_ids"].get<std::vector<std::string>>();
   }
 
-  srand(1234567 * (my_agent_id == "a" ? 1 : 0) + tick * 100 + 13);
-
-  // send each (alive) unit a random action
   for (const auto& unit_id: my_units)
   {
     const json& unit = game_state["unit_state"][unit_id];
     if (unit["hp"] <= 0) continue;
-    //std::string action = _actions[rand() % _actions.size()];
-    std::string action = pathFinder(tick, game_state);
+    //Mandar ordem
+    std::string action = escolherOrdem(tick, game_state);
     std::cout << "action: " << unit_id << " -> " << action << std::endl;
 
     if (action == "up" || action == "left" || action == "right" || action == "down")
@@ -94,22 +91,48 @@ void Agent::on_game_tick(int tick_nr, const json& game_state)
   }
 }
 
-std::string Agent::pathFinder(int tick, const json& game_state) {
+std::string Agent::escolherOrdem(int tick, const json& game_state) {
 
+  const json& unit_ia = game_state["unit_state"]["d"];
+  const json& unit_inimigo = game_state["unit_state"]["c"];
+
+  std::vector<int> coordenadas_ia = unit_ia["coordinates"];
+  std::vector<int> coordenadas_inimigo = unit_inimigo["coordinates"];
+
+  //Serve para saber se as unidades estão uma vizinha da outra
+  int distanciaX = coordenadas_ia[0] - coordenadas_inimigo[0];
+  int distanciaY = coordenadas_ia[1] - coordenadas_inimigo[1];
+  int distaciaAbsoluta = abs(distanciaX) + abs(distanciaY);
+
+  //-------------Tomada de decisao-------------
+  //Se estiver vizinho ao inimigo, tenta soltar bomba
+  //Senão, chama o pathfinding para ir até o inimigo
+  if(distaciaAbsoluta == 1){
+    std::cout << "Estou vizinho ao inimigo" << std::endl;
+    if(unit_ia["inventory"]["bombs"] > 0){
+      return "bomb";
+    } else {
+      std::cout << "Estou sem bombas" << std::endl;
+      return pathFinder(coordenadas_ia, coordenadas_inimigo, game_state);
+    }
+  } else {
+    return pathFinder(coordenadas_ia, coordenadas_inimigo, game_state);
+  }
+}
+
+std::string Agent::pathFinder(std::vector<int> coordenadas_ia, std::vector<int> coordenadas_inimigo, const json& game_state) {
+  std::cout << "Pathfinding" << std::endl;
   GradesComPeso grade(15, 15);
-  //grade.pontosComPeso = std::unordered_set<LocalizacaoGrade> {};
-
+  
+  //Preenche a grade com as entidades que são obstáculos
   const json& entities = game_state["entities"];
   for (const auto& entity: entities) {
     int x = entity["x"];
     int y = entity["y"];
-    if (entity["type"] == "a") {
-      addEntidade(grade, x, y);
-    } else if (entity["type"] == "b") {
+
+    if (entity["type"] == "b") {
       addEntidade(grade, x, y);
     } else if (entity["type"] == "x") {
-      addEntidade(grade, x, y);
-    } else if (entity["type"] == "bp") {
       addEntidade(grade, x, y);
     } else if (entity["type"] == "m") {
       addEntidade(grade, x, y);
@@ -120,26 +143,12 @@ std::string Agent::pathFinder(int tick, const json& game_state) {
     }
   }
 
-  const json& unit_ia = game_state["unit_state"]["d"];
-  const json& unit_inimigo = game_state["unit_state"]["c"];
-
-  std::vector<int> coordenadas_ia = unit_ia["coordinates"];
-  std::vector<int> coordenadas_inimigo = unit_inimigo["coordinates"];
-
   LocalizacaoGrade inicio{coordenadas_ia[0], coordenadas_ia[1]}, destino{coordenadas_inimigo[0], coordenadas_inimigo[1]};
   std::unordered_map<LocalizacaoGrade, LocalizacaoGrade> veioDe;
   std::unordered_map<LocalizacaoGrade, double> custoAteAgora;
-  
+
   buscaAestrela(grade, inicio, destino, veioDe, custoAteAgora);
-  //desenharGrade(grade, nullptr, &veioDe, nullptr, &inicio, &destino);
-  //std::cout << '\n';
-  
   std::vector<LocalizacaoGrade> caminho = reconstruirCaminho(inicio, destino, veioDe);
-  std::cout << "Proxima localizacao: " << caminho[1] << std::endl;
-  
-  //desenharGrade(grade, nullptr, nullptr, &caminho, &inicio, &destino);
-  //std::cout << '\n';
-  //desenharGrade(grade, &custoAteAgora, nullptr, nullptr, &inicio, &destino);
 
   if(caminho[1].x > inicio.x) {
     return "right";
@@ -149,8 +158,6 @@ std::string Agent::pathFinder(int tick, const json& game_state) {
     return "down";
   } else if(caminho[1].y > inicio.y) {
     return "up";
-  } else {
-    return "right";
   }
 }
 
