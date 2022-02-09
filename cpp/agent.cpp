@@ -93,8 +93,20 @@ void Agent::on_game_tick(int tick_nr, const json& game_state)
 
 std::string Agent::escolherOrdem(int tick, const json& game_state) {
 
-  const json& unit_ia = game_state["unit_state"]["d"];
-  const json& unit_inimigo = game_state["unit_state"]["c"];
+  std::string id_meu_agente = game_state["connection"]["agent_id"];
+  std::string id_ia = "";
+  std::string id_inimigo = "";
+
+  if(id_meu_agente == "a") {
+    id_ia = "c";
+    id_inimigo = "d";
+  } else {
+    id_ia = "d";
+    id_inimigo = "c";
+  }
+
+  const json& unit_ia = game_state["unit_state"][id_ia];
+  const json& unit_inimigo = game_state["unit_state"][id_inimigo];
 
   std::vector<int> coordenadas_ia = unit_ia["coordinates"];
   std::vector<int> coordenadas_inimigo = unit_inimigo["coordinates"];
