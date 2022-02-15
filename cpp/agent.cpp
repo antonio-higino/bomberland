@@ -1,5 +1,6 @@
 #include "game_state.hpp"
 #include "a_estrela.cpp"
+#include "goap_index.cpp"
 
 #include <string>
 #include <stdlib.h>
@@ -15,8 +16,8 @@ private:
   static int tick;
 
   static void on_game_tick(int tick, const json& game_state);
-  static bool estaVizinho(std::vector<int> coordenadas_inicio, std::vector<int> coordenadas_alvo);
-  static std::string escolherOrdem(int tick, const json& game_state);
+  static int distanciaAbsoluta(std::vector<int> coordenadas_inicio, std::vector<int> coordenadas_alvo);
+  static std::string escolherOrdem(const json& game_state);
   static std::string pathFinder(std::vector<int> coordenadas_inicio, std::vector<int> coordenadas_alvo, const json& game_state);
 public:
   static void run();
@@ -61,7 +62,7 @@ void Agent::on_game_tick(int tick_nr, const json& game_state)
     const json& unit = game_state["unit_state"][unit_id];
     if (unit["hp"] <= 0) continue;
     //Mandar ordem
-    std::string action = escolherOrdem(tick, game_state);
+    std::string action = escolherOrdem(game_state);
     std::cout << "action: " << unit_id << " -> " << action << std::endl;
 
     if (action == "up" || action == "left" || action == "right" || action == "down")
@@ -92,20 +93,20 @@ void Agent::on_game_tick(int tick_nr, const json& game_state)
   }
 }
 
-//Serve para saber se as unidades estão uma vizinha da outra
-bool Agent::estaVizinho(std::vector<int> coordenadas_inicio, std::vector<int> coordenadas_alvo) {
+//Serve para calcular a distancia entre duas unidades/entidades
+int Agent::distanciaAbsoluta(std::vector<int> coordenadas_inicio, std::vector<int> coordenadas_alvo) {
   int distanciaX = coordenadas_inicio[0] - coordenadas_alvo[0];
   int distanciaY = coordenadas_inicio[1] - coordenadas_alvo[1];
-  int distaciaAbsoluta = abs(distanciaX) + abs(distanciaY);
+  return abs(distanciaX) + abs(distanciaY);
 
-  if(distaciaAbsoluta == 1) {
+  /*if(distaciaAbsoluta == 1) {
     return true;
   } else {
     return false;
-  }
+  }*/
 }
 
-std::string Agent::escolherOrdem(int tick, const json& game_state) {
+std::string Agent::escolherOrdem(const json& game_state) {
 
   std::string id_meu_agente = game_state["connection"]["agent_id"];
   std::string id_ia = "";
@@ -125,12 +126,34 @@ std::string Agent::escolherOrdem(int tick, const json& game_state) {
   std::vector<int> coordenadas_inicio = unit_ia["coordinates"];
   std::vector<int> coordenadas_alvo = unit_inimigo["coordinates"];
 
+  Estado estado_ia(false, false, false);
+
+  if(unit_ia["inventory"]["bombs"] > 0){
+    estado_ia.temBomba = true;
+  }
+
+  if(distanciaAbsoluta(coordenadas_inicio, coordenadas_alvo) == 1) {
+    estado_ia.estaVizinhoInimigo = true;
+  }
+
+  const json& entities = game_state["entities"];
+  for(const auto& entity: entities) {
+    if(entity["type"] == "b" && entity["unit_id"] == id_inimigo) {
+      std::vector<int> coordenadas_bomba = {entity["x"], entity["y"]};
+      if(distanciaAbsoluta(coordenadas_inicio, coordenadas_bomba) <= 3) {
+        estado_ia.estaPertoBombaInimiga = true;
+      }
+    }
+  }
+
+  //goap(estado_ia);
+
   //-------------Tomada de decisao-------------
   //Se estiver vizinho ao inimigo, tenta soltar bomba
   //Senão, chama o pathfinding para ir até o inimigo
-  if(estaVizinho(coordenadas_inicio, coordenadas_alvo)){
+  if(estado_ia.estaVizinhoInimigo){
     std::cout << "Estou vizinho ao inimigo" << std::endl;
-    if(unit_ia["inventory"]["bombs"] > 0){
+    if(estado_ia.temBomba = true){
       return "bomb";
     } else {
       std::cout << "Estou sem bombas" << std::endl;
