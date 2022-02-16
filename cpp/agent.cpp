@@ -1,6 +1,7 @@
 #include "game_state.hpp"
 #include "a_estrela.cpp"
-#include "goap_index.cpp"
+//#include "goap_index.cpp"
+#include "behavior_tree_bl.cpp"
 
 #include <string>
 #include <stdlib.h>
@@ -126,7 +127,7 @@ std::string Agent::escolherOrdem(const json& game_state) {
   std::vector<int> coordenadas_inicio = unit_ia["coordinates"];
   std::vector<int> coordenadas_alvo = unit_inimigo["coordinates"];
 
-  Estado estado_ia(false, false, false);
+  Estado estado_ia;
 
   if(unit_ia["inventory"]["bombs"] > 0){
     estado_ia.temBomba = true;
@@ -138,15 +139,15 @@ std::string Agent::escolherOrdem(const json& game_state) {
 
   const json& entities = game_state["entities"];
   for(const auto& entity: entities) {
-    if(entity["type"] == "b" && entity["unit_id"] == id_inimigo) {
+    if(entity["type"] == "b") {
       std::vector<int> coordenadas_bomba = {entity["x"], entity["y"]};
       if(distanciaAbsoluta(coordenadas_inicio, coordenadas_bomba) <= 3) {
-        estado_ia.estaPertoBombaInimiga = true;
+        estado_ia.estaPertoBomba = true;
       }
     }
   }
 
-  //goap(estado_ia);
+  //std::string resultado = behaviorTree(estado_ia);
 
   //-------------Tomada de decisao-------------
   //Se estiver vizinho ao inimigo, tenta soltar bomba

@@ -1,21 +1,15 @@
 //#include <iostream>
 //#include <string>
 
-using namespace std;
+//using namespace std;
 
-class Estado {
+struct Estado {
     //public bool temBomba;
-
-    public:
-        bool temBomba;
-        bool estaVizinhoInimigo;
-        bool estaPertoBombaInimiga;
-
-        Estado(bool temBomba, bool estaVizinhoInimigo, bool estaPertoBombaInimiga);
+    bool temBomba = false;
+    bool estaVizinhoInimigo = false;
+    bool estaPertoBomba = false;
 };
 
-Estado::Estado(bool temBomba, bool estaVizinhoInimigo, bool estaPertoBombaInimiga) {
-    this->temBomba = temBomba;
-    this->estaVizinhoInimigo = estaVizinhoInimigo;
-    this->estaPertoBombaInimiga = estaPertoBombaInimiga;
-}
+/*Estado::Estado() {
+
+}*/
