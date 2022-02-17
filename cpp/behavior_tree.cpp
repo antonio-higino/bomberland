@@ -16,33 +16,22 @@ class Node {
 		virtual bool run() = 0;
 };
 
-class CompositeNode : public Node {
+class NodeComposto : public Node {
 	private:
-		list<Node*> children;
+		list<Node*> filhos;
 	public:
-		const list<Node*>& getChildren() const {return children;}
-		void addChild (Node* child) {children.emplace_back(child);}
+		const list<Node*>& getFilhos() const {return filhos;}
+		void addFilho (Node* filho) {filhos.emplace_back(filho);}
 };
 
-class Selector : public CompositeNode {
+class Seletor : public NodeComposto {
 	public:
 		virtual bool run() override {
-			for (Node* child : getChildren()) { 
-				if (child->run())
+			for (Node* filho : getFilhos()) { 
+				if (filho->run())
 					return true;
 			}
 			return false;
-		}
-};
-
-class Sequence : public CompositeNode {
-	public:
-		virtual bool run() override {
-			for (Node* child : getChildren()) { 
-				if (!child->run()) 
-					return false;
-			}
-			return true;
 		}
 };
 
@@ -89,25 +78,19 @@ class EstaVizinho : public Node {
 
 string behaviorTree(Estado estado_ia) {
 
-	//string resultado = "";
-
-	Sequence* root = new Sequence; 
-	Selector* seletorGeral = new Selector;
+	Seletor* root = new Seletor;
+	Seletor* seletorGeral = new Seletor;
 	EstaEmPerigo* estaEmPerigo = new EstaEmPerigo (estado_ia.estaPertoBomba);
 	NaoTemMunicao* naoTemMunicao = new NaoTemMunicao (estado_ia.naoTemMunicao);
 	EstaVizinho* estaVizinho = new EstaVizinho (estado_ia.estaVizinhoInimigo);
 	
-	root->addChild (seletorGeral);
+	root->addFilho (seletorGeral);
 	
-	seletorGeral->addChild (estaEmPerigo);
-	seletorGeral->addChild (naoTemMunicao);
-	seletorGeral->addChild (estaVizinho);
+	seletorGeral->addFilho (estaEmPerigo);
+	seletorGeral->addFilho (naoTemMunicao);
+	seletorGeral->addFilho (estaVizinho);
 	
-	while (!root->run())  // If the operation starting from the root fails, keep trying until it succeeds.
-	//root->run();
-		//cout << "--------------------" << endl;
-	//cout << endl << "Operation complete.  Behaviour tree exited." << endl;
-	//cin.get();
+	while (!root->run()) {}
 
 	cout << "Resultado da BehaviorTree: " << resultado << endl;
 

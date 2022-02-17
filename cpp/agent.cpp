@@ -98,12 +98,6 @@ int Agent::distanciaAbsoluta(std::vector<int> coordenadas_inicio, std::vector<in
   int distanciaX = coordenadas_inicio[0] - coordenadas_alvo[0];
   int distanciaY = coordenadas_inicio[1] - coordenadas_alvo[1];
   return abs(distanciaX) + abs(distanciaY);
-
-  /*if(distaciaAbsoluta == 1) {
-    return true;
-  } else {
-    return false;
-  }*/
 }
 
 std::string Agent::escolherOrdem(const json& game_state) {
@@ -125,7 +119,6 @@ std::string Agent::escolherOrdem(const json& game_state) {
 
   std::vector<int> coordenadas_inicio = unit_ia["coordinates"];
   std::vector<int> coordenadas_inimigo = unit_inimigo["coordinates"];
-  //std::vector<int> coordenadas_bomba = {0,0};
   std::vector<int> coordenadas_municao = {7,7};
   std::vector<int> coordenadas_seguro = {7,7};
 
@@ -155,10 +148,7 @@ std::string Agent::escolherOrdem(const json& game_state) {
     }
   }
 
-  //std::cout << "Municao: " << estado_ia.temMunicao << std::endl;
-  //std::cout << "Vizinho: " << estado_ia.estaVizinhoInimigo << std::endl;
-  //std::cout << "Perto Bomba: " << estado_ia.estaPertoBomba << std::endl;
-
+  //-------------Tomada de decisao-------------
   std::string resultado = behaviorTree(estado_ia);
 
   if(resultado == "perigo") {
@@ -172,21 +162,6 @@ std::string Agent::escolherOrdem(const json& game_state) {
   } else {
     return "down";
   }
-
-  //-------------Tomada de decisao-------------
-  //Se estiver vizinho ao inimigo, tenta soltar bomba
-  //Senão, chama o pathfinding para ir até o inimigo
-  /*if(estado_ia.estaVizinhoInimigo){
-    std::cout << "Estou vizinho ao inimigo" << std::endl;
-    if(estado_ia.temBomba = true){
-      return "bomb";
-    } else {
-      std::cout << "Estou sem bombas" << std::endl;
-      return pathFinder(coordenadas_inicio, coordenadas_alvo, game_state);
-    }
-  } else {
-    return pathFinder(coordenadas_inicio, coordenadas_alvo, game_state);
-  }*/
 }
 
 std::string Agent::pathFinder(std::vector<int> coordenadas_inicio, std::vector<int> coordenadas_alvo, const json& game_state) {
