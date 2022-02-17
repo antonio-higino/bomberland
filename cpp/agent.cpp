@@ -1,7 +1,7 @@
 #include "game_state.hpp"
 #include "a_estrela.cpp"
 //#include "goap_index.cpp"
-#include "behavior_tree_bl.cpp"
+#include "behavior_tree.cpp"
 
 #include <string>
 #include <stdlib.h>
@@ -125,15 +125,18 @@ std::string Agent::escolherOrdem(const json& game_state) {
   const json& unit_inimigo = game_state["unit_state"][id_inimigo];
 
   std::vector<int> coordenadas_inicio = unit_ia["coordinates"];
-  std::vector<int> coordenadas_alvo = unit_inimigo["coordinates"];
+  std::vector<int> coordenadas_inimigo = unit_inimigo["coordinates"];
+  //std::vector<int> coordenadas_bomba = {0,0};
+  std::vector<int> coordenadas_municao = {0,0};
+  std::vector<int> coordenadas_seguro = {7,7};
 
   Estado estado_ia;
 
   if(unit_ia["inventory"]["bombs"] > 0){
-    estado_ia.temBomba = true;
+    estado_ia.temMunicao = true;
   }
 
-  if(distanciaAbsoluta(coordenadas_inicio, coordenadas_alvo) == 1) {
+  if(distanciaAbsoluta(coordenadas_inicio, coordenadas_inimigo) == 1) {
     estado_ia.estaVizinhoInimigo = true;
   }
 
@@ -147,12 +150,32 @@ std::string Agent::escolherOrdem(const json& game_state) {
     }
   }
 
-  //std::string resultado = behaviorTree(estado_ia);
+  for(const auto& entity: entities) {
+    if(entity["type"] == "a") {
+      coordenadas_municao = {entity["x"], entity["y"]};
+      //estado_ia.existeMunicaoMapa = true;
+    }
+  }
+
+  std::string resultado = behaviorTree(estado_ia);
+
+  if(resultado == "perigo") {
+    return pathFinder(coordenadas_inicio, coordenadas_seguro, game_state);
+  }
+  if(resultado == "municao") {
+    return pathFinder(coordenadas_inicio, coordenadas_municao, game_state);
+  }
+  if(resultado == "pursuit") {
+    return pathFinder(coordenadas_inicio, coordenadas_inimigo, game_state);
+  }
+  if(resultado == "vizinho") {
+    return "bomb";
+  }
 
   //-------------Tomada de decisao-------------
   //Se estiver vizinho ao inimigo, tenta soltar bomba
   //Senão, chama o pathfinding para ir até o inimigo
-  if(estado_ia.estaVizinhoInimigo){
+  /*if(estado_ia.estaVizinhoInimigo){
     std::cout << "Estou vizinho ao inimigo" << std::endl;
     if(estado_ia.temBomba = true){
       return "bomb";
@@ -162,7 +185,7 @@ std::string Agent::escolherOrdem(const json& game_state) {
     }
   } else {
     return pathFinder(coordenadas_inicio, coordenadas_alvo, game_state);
-  }
+  }*/
 }
 
 std::string Agent::pathFinder(std::vector<int> coordenadas_inicio, std::vector<int> coordenadas_alvo, const json& game_state) {

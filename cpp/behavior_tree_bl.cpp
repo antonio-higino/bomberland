@@ -23,10 +23,10 @@ we are done)             /               \
 */
 
 struct Estado {
-    //public bool temBomba;
     bool temBomba = false;
     bool estaVizinhoInimigo = false;
     bool estaPertoBomba = false;
+	//bool existeMunicaoMapa = false;
 };
 
 class Node {  // This class represents each node in the behaviour tree.
@@ -122,7 +122,10 @@ class OpenDoorTask : public Node {
 		}
 };
 
-int main() {
+string behaviorTree(Estado estado_ia) {
+
+	string resultado = "";
+
 	Sequence *root = new Sequence, *sequence1 = new Sequence;  // Note that root can be either a Sequence or a Selector, since it has only one child.
 	Selector* selector1 = new Selector;  // In general there will be several nodes that are Sequence or Selector, so they should be suffixed by an integer to distinguish between them.
 	DoorStatus* doorStatus = new DoorStatus {false, 5};  // The door is initially closed and 5 meters away.
@@ -142,6 +145,8 @@ int main() {
 		std::cout << "--------------------" << std::endl;
 	std::cout << std::endl << "Operation complete.  Behaviour tree exited." << std::endl;
 	//std::cin.get();
+
+	return resultado;
 }
 
 /*
