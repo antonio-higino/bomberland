@@ -190,7 +190,6 @@ std::string Agent::escolherOrdem(const json& game_state) {
 }
 
 std::string Agent::pathFinder(std::vector<int> coordenadas_inicio, std::vector<int> coordenadas_alvo, const json& game_state) {
-  //std::cout << "Pathfinding" << std::endl;
   GradesComPeso grade(15, 15);
   
   //Preenche a grade com as entidades que são obstáculos

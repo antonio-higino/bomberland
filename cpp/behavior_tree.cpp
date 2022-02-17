@@ -11,12 +11,12 @@ struct Estado {
     bool estaPertoBomba = false;
 };
 
-class Node {  // This class represents each node in the behaviour tree.
+class Node {
 	public:
 		virtual bool run() = 0;
 };
 
-class CompositeNode : public Node {  //  This type of Node follows the Composite Pattern, containing a list of other Nodes.
+class CompositeNode : public Node {
 	private:
 		list<Node*> children;
 	public:
@@ -27,26 +27,26 @@ class CompositeNode : public Node {  //  This type of Node follows the Composite
 class Selector : public CompositeNode {
 	public:
 		virtual bool run() override {
-			for (Node* child : getChildren()) {  // The generic Selector implementation
-				if (child->run())  // If one child succeeds, the entire operation run() succeeds.  Failure only results if all children fail.
+			for (Node* child : getChildren()) { 
+				if (child->run())
 					return true;
 			}
-			return false;  // All children failed so the entire run() operation fails.
+			return false;
 		}
 };
 
 class Sequence : public CompositeNode {
 	public:
 		virtual bool run() override {
-			for (Node* child : getChildren()) {  // The generic Sequence implementation.
-				if (!child->run())  // If one child fails, then enter operation run() fails.  Success only results if all children succeed.
+			for (Node* child : getChildren()) { 
+				if (!child->run()) 
 					return false;
 			}
-			return true;  // All children suceeded, so the entire run() operation succeeds.
+			return true;
 		}
 };
 
-class EstaEmPerigo : public Node {  // Each task will be a class (derived from Node of course).
+class EstaEmPerigo : public Node {
 	private:
 		bool input;
 	public:
@@ -54,15 +54,12 @@ class EstaEmPerigo : public Node {  // Each task will be a class (derived from N
 		virtual bool run() override {
 			if (input == true) {
 				resultado = "perigo";
-				//cout << "The person sees that the door is open." << endl;  // will return true
-			//}else
-				//cout << "The person sees that the door is closed." << endl;  // will return false
 			}
 			return input;
 		}
 };
 
-class NaoTemMunicao : public Node {  // Each task will be a class (derived from Node of course).
+class NaoTemMunicao : public Node {
 	private:
 		bool input;
 	public:
@@ -70,15 +67,12 @@ class NaoTemMunicao : public Node {  // Each task will be a class (derived from 
 		virtual bool run() override {
 			if (input == true) {
 				resultado = "municao";
-				//cout << "The person sees that the door is open." << endl;  // will return true
-			//}else {
-				//cout << "The person sees that the door is closed." << endl;  // will return false
 			}
 			return input;
 		}
 };
 
-class EstaVizinho : public Node {  // Each task will be a class (derived from Node of course).
+class EstaVizinho : public Node {
 	private:
 		bool input;
 	public:
@@ -86,10 +80,8 @@ class EstaVizinho : public Node {  // Each task will be a class (derived from No
 		virtual bool run() override {
 			if (input == true) {
 				resultado = "vizinho";
-				//cout << "The person sees that the door is open." << endl;  // will return true
 			}else {
 				resultado = "pursuit";
-				//cout << "The person sees that the door is closed." << endl;  // will return false
 			}
 			return true;
 		}
@@ -100,11 +92,10 @@ string behaviorTree(Estado estado_ia) {
 	//string resultado = "";
 
 	Sequence* root = new Sequence; 
-	Selector* seletorGeral = new Selector;  // Note that root can be either a Sequence or a Selector, since it has only one child.
+	Selector* seletorGeral = new Selector;
 	EstaEmPerigo* estaEmPerigo = new EstaEmPerigo (estado_ia.estaPertoBomba);
 	NaoTemMunicao* naoTemMunicao = new NaoTemMunicao (estado_ia.naoTemMunicao);
 	EstaVizinho* estaVizinho = new EstaVizinho (estado_ia.estaVizinhoInimigo);
-	//NaoEstaVizinho* naoEstaVizinho = new NaoEstaVizinho (estado_ia.estaVizinhoInimigo);
 	
 	root->addChild (seletorGeral);
 	
