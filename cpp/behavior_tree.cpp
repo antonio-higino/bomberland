@@ -41,10 +41,10 @@ class EstaEmPerigo : public Node {  // Each task will be a class (derived from N
 	public:
 		EstaEmPerigo (bool input) : input(input) {}
 		virtual bool run() override {
-			if (input == true){
+			if (input == true) {
 				resultado = "perigo";
 				//cout << "The person sees that the door is open." << endl;  // will return true
-			//else
+			//}else
 				//cout << "The person sees that the door is closed." << endl;  // will return false
 			}
 			return input;
@@ -60,7 +60,7 @@ class TemMunicao : public Node {  // Each task will be a class (derived from Nod
 			if (input == true) {
 				resultado = "municao";
 				//cout << "The person sees that the door is open." << endl;  // will return true
-			//else
+			//}else {
 				//cout << "The person sees that the door is closed." << endl;  // will return false
 			}
 			return input;
@@ -73,29 +73,32 @@ class EstaVizinho : public Node {  // Each task will be a class (derived from No
 	public:
 		EstaVizinho (bool input) : input(input) {}
 		virtual bool run() override {
-			if (input == true)
+			if (input == true) {
 				resultado = "vizinho";
 				//cout << "The person sees that the door is open." << endl;  // will return true
-			//else
+			}else {
+				resultado = "pursuit";
 				//cout << "The person sees that the door is closed." << endl;  // will return false
+			}
 			return input;
 		}
 };
 
-class NaoEstaVizinho : public Node {  // Each task will be a class (derived from Node of course).
+/*class NaoEstaVizinho : public Node {  // Each task will be a class (derived from Node of course).
 	private:
 		bool input;
 	public:
 		NaoEstaVizinho (bool input) : input(input) {}
 		virtual bool run() override {
-			if (input == false)
+			if (input == false) {
 				resultado = "pursuit";
 				//cout << "The person sees that the door is open." << endl;  // will return true
-			//else
+			//}else
 				//cout << "The person sees that the door is closed." << endl;  // will return false
+			}
 			return input;
 		}
-};
+};*/
 
 string behaviorTree(Estado estado_ia) {
 
@@ -105,7 +108,7 @@ string behaviorTree(Estado estado_ia) {
 	EstaEmPerigo* estaEmPerigo = new EstaEmPerigo (estado_ia.estaPertoBomba);
 	TemMunicao* temMunicao = new TemMunicao (estado_ia.temMunicao);
 	EstaVizinho* estaVizinho = new EstaVizinho (estado_ia.estaVizinhoInimigo);
-	NaoEstaVizinho* naoEstaVizinho = new NaoEstaVizinho (estado_ia.estaVizinhoInimigo);
+	//NaoEstaVizinho* naoEstaVizinho = new NaoEstaVizinho (estado_ia.estaVizinhoInimigo);
 	
 	root->addChild (seletorGeral);
 	
@@ -114,7 +117,7 @@ string behaviorTree(Estado estado_ia) {
 	seletorGeral->addChild (vizinhoInimigo);
 	
 	vizinhoInimigo->addChild (estaVizinho);
-	vizinhoInimigo->addChild (naoEstaVizinho);
+	//vizinhoInimigo->addChild (naoEstaVizinho);
 	
 	while (!root->run())  // If the operation starting from the root fails, keep trying until it succeeds.
 		//cout << "--------------------" << endl;
