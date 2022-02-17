@@ -6,7 +6,7 @@ using namespace std;
 string resultado = "";
 
 struct Estado {
-    bool temMunicao = false;
+    bool naoTemMunicao = true;
     bool estaVizinhoInimigo = false;
     bool estaPertoBomba = false;
 };
@@ -35,6 +35,17 @@ class Selector : public CompositeNode {
 		}
 };
 
+class Sequence : public CompositeNode {
+	public:
+		virtual bool run() override {
+			for (Node* child : getChildren()) {  // The generic Sequence implementation.
+				if (!child->run())  // If one child fails, then enter operation run() fails.  Success only results if all children succeed.
+					return false;
+			}
+			return true;  // All children suceeded, so the entire run() operation succeeds.
+		}
+};
+
 class EstaEmPerigo : public Node {  // Each task will be a class (derived from Node of course).
 	private:
 		bool input;
@@ -51,11 +62,11 @@ class EstaEmPerigo : public Node {  // Each task will be a class (derived from N
 		}
 };
 
-class TemMunicao : public Node {  // Each task will be a class (derived from Node of course).
+class NaoTemMunicao : public Node {  // Each task will be a class (derived from Node of course).
 	private:
 		bool input;
 	public:
-		TemMunicao (bool input) : input(input) {}
+		NaoTemMunicao (bool input) : input(input) {}
 		virtual bool run() override {
 			if (input == true) {
 				resultado = "municao";
@@ -80,46 +91,29 @@ class EstaVizinho : public Node {  // Each task will be a class (derived from No
 				resultado = "pursuit";
 				//cout << "The person sees that the door is closed." << endl;  // will return false
 			}
-			return input;
+			return true;
 		}
 };
-
-/*class NaoEstaVizinho : public Node {  // Each task will be a class (derived from Node of course).
-	private:
-		bool input;
-	public:
-		NaoEstaVizinho (bool input) : input(input) {}
-		virtual bool run() override {
-			if (input == false) {
-				resultado = "pursuit";
-				//cout << "The person sees that the door is open." << endl;  // will return true
-			//}else
-				//cout << "The person sees that the door is closed." << endl;  // will return false
-			}
-			return input;
-		}
-};*/
 
 string behaviorTree(Estado estado_ia) {
 
 	//string resultado = "";
 
-	Selector *root = new Selector, *seletorGeral = new Selector, *vizinhoInimigo = new Selector;  // Note that root can be either a Sequence or a Selector, since it has only one child.
+	Sequence* root = new Sequence; 
+	Selector* seletorGeral = new Selector;  // Note that root can be either a Sequence or a Selector, since it has only one child.
 	EstaEmPerigo* estaEmPerigo = new EstaEmPerigo (estado_ia.estaPertoBomba);
-	TemMunicao* temMunicao = new TemMunicao (estado_ia.temMunicao);
+	NaoTemMunicao* naoTemMunicao = new NaoTemMunicao (estado_ia.naoTemMunicao);
 	EstaVizinho* estaVizinho = new EstaVizinho (estado_ia.estaVizinhoInimigo);
 	//NaoEstaVizinho* naoEstaVizinho = new NaoEstaVizinho (estado_ia.estaVizinhoInimigo);
 	
 	root->addChild (seletorGeral);
 	
 	seletorGeral->addChild (estaEmPerigo);
-	seletorGeral->addChild (temMunicao);
-	seletorGeral->addChild (vizinhoInimigo);
-	
-	vizinhoInimigo->addChild (estaVizinho);
-	//vizinhoInimigo->addChild (naoEstaVizinho);
+	seletorGeral->addChild (naoTemMunicao);
+	seletorGeral->addChild (estaVizinho);
 	
 	while (!root->run())  // If the operation starting from the root fails, keep trying until it succeeds.
+	//root->run();
 		//cout << "--------------------" << endl;
 	//cout << endl << "Operation complete.  Behaviour tree exited." << endl;
 	//cin.get();

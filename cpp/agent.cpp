@@ -1,6 +1,5 @@
 #include "game_state.hpp"
 #include "a_estrela.cpp"
-//#include "goap_index.cpp"
 #include "behavior_tree.cpp"
 
 #include <string>
@@ -127,13 +126,13 @@ std::string Agent::escolherOrdem(const json& game_state) {
   std::vector<int> coordenadas_inicio = unit_ia["coordinates"];
   std::vector<int> coordenadas_inimigo = unit_inimigo["coordinates"];
   //std::vector<int> coordenadas_bomba = {0,0};
-  std::vector<int> coordenadas_municao = {0,0};
+  std::vector<int> coordenadas_municao = {7,7};
   std::vector<int> coordenadas_seguro = {7,7};
 
   Estado estado_ia;
 
   if(unit_ia["inventory"]["bombs"] > 0){
-    estado_ia.temMunicao = true;
+    estado_ia.naoTemMunicao = false;
   }
 
   if(distanciaAbsoluta(coordenadas_inicio, coordenadas_inimigo) == 1) {
@@ -153,23 +152,25 @@ std::string Agent::escolherOrdem(const json& game_state) {
   for(const auto& entity: entities) {
     if(entity["type"] == "a") {
       coordenadas_municao = {entity["x"], entity["y"]};
-      //estado_ia.existeMunicaoMapa = true;
     }
   }
+
+  //std::cout << "Municao: " << estado_ia.temMunicao << std::endl;
+  //std::cout << "Vizinho: " << estado_ia.estaVizinhoInimigo << std::endl;
+  //std::cout << "Perto Bomba: " << estado_ia.estaPertoBomba << std::endl;
 
   std::string resultado = behaviorTree(estado_ia);
 
   if(resultado == "perigo") {
     return pathFinder(coordenadas_inicio, coordenadas_seguro, game_state);
-  }
-  if(resultado == "municao") {
+  } else if(resultado == "municao") {
     return pathFinder(coordenadas_inicio, coordenadas_municao, game_state);
-  }
-  if(resultado == "pursuit") {
+  } else if(resultado == "pursuit") {
     return pathFinder(coordenadas_inicio, coordenadas_inimigo, game_state);
-  }
-  if(resultado == "vizinho") {
+  } else if(resultado == "vizinho") {
     return "bomb";
+  } else {
+    return "down";
   }
 
   //-------------Tomada de decisao-------------
@@ -189,7 +190,7 @@ std::string Agent::escolherOrdem(const json& game_state) {
 }
 
 std::string Agent::pathFinder(std::vector<int> coordenadas_inicio, std::vector<int> coordenadas_alvo, const json& game_state) {
-  std::cout << "Pathfinding" << std::endl;
+  //std::cout << "Pathfinding" << std::endl;
   GradesComPeso grade(15, 15);
   
   //Preenche a grade com as entidades que são obstáculos
